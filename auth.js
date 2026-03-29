@@ -1,10 +1,18 @@
-import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
-import pino from 'pino';
+import pkg from 'whatsapp-web.js';
+const { Client, LocalAuth } = pkg;
+import qrcode from 'qrcode-terminal';
 
-(async () => {
-  const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
-  const sock = makeWASocket({
-    logger: pino({ level: 'silent' }),
-    auth: state,
-  });
-})();
+const client = new Client({
+  authStrategy: new LocalAuth(),
+});
+
+client.on('qr', (qr) => {
+  qrcode.generate(qr, { small: true });
+});
+
+client.on('ready', () => {
+  console.log('Connected');
+});
+
+client.initialize();
+
