@@ -30,6 +30,7 @@ async function connect() {
 
     if (connection === 'close') {
       const code = new Boom(lastDisconnect?.error)?.output?.statusCode;
+      console.log('Connection closed with code:', code);
       if (code === DisconnectReason.loggedOut) {
         console.log('Logged out!');
       } else {
