@@ -2,5 +2,5 @@ node_modules
 package-lock.json
 auth_info
 session.json
-export-sesson.cjs
+export-session.cjs
 .env
