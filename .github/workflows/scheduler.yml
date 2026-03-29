@@ -21,17 +21,17 @@ jobs:
 
       - name: Restaurar sessão
         run: |
-            mkdir -p auth_info
-    node -e "
-      const fs = require('fs');
-      const zlib = require('zlib');
-      const compressed = Buffer.from('${{ secrets.WHATSAPP_AUTH }}', 'base64');
-      const data = JSON.parse(zlib.gunzipSync(compressed).toString());
-      for (const [filename, content] of Object.entries(data)) {
-          fs.writeFileSync('auth_info/' + filename, JSON.stringify(content));
-        }
-        console.log('✅ Sessão restaurada!');
-        "
+          mkdir -p auth_info
+          node -e "
+            const fs = require('fs');
+            const zlib = require('zlib');
+            const compressed = Buffer.from('${{ secrets.WHATSAPP_AUTH }}', 'base64');
+            const data = JSON.parse(zlib.gunzipSync(compressed).toString());
+            for (const [filename, content] of Object.entries(data)) {
+              fs.writeFileSync('auth_info/' + filename, JSON.stringify(content));
+            }
+            console.log('✅ Sessão restaurada!');
+          "
 
       - name: Enviar mensagem
         run: node send.js
