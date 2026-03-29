@@ -1,18 +1,38 @@
-import pkg from 'whatsapp-web.js';
-const { Client, LocalAuth } = pkg;
+import 'dotenv/config';
+import { makeWASocket, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
+import pino from 'pino';
 import qrcode from 'qrcode-terminal';
+import { Boom } from '@hapi/boom';
 
-const client = new Client({
-  authStrategy: new LocalAuth(),
-});
+async function connect() {
+  const { state, saveCreds } = await useMultiFileAuthState('./auth_info');
 
-client.on('qr', (qr) => {
-  qrcode.generate(qr, { small: true });
-});
+  const sock = makeWASocket({
+    auth: state,
+    logger: pino({ level: 'silent' }),
+  });
 
-client.on('ready', () => {
-  console.log('Connected');
-});
+  sock.ev.on('creds.update', saveCreds);
 
-client.initialize();
+  sock.ev.on('connection.update', ({ connection, qr, lastDisconnect }) => {
+    if (qr) {
+      qrcode.generate(qr, { small: true });
+    }
 
+    if (connection === 'open') {
+      console.log('Connected! You can close this now.');
+    }
+
+    if (connection === 'close') {
+      const code = new Boom(lastDisconnect?.error)?.output?.statusCode;
+      if (code === DisconnectReason.loggedOut) {
+        console.log('Logged out!');
+      } else {
+        console.log('Reconnecting...');
+        connect();
+      }
+    }
+  });
+}
+
+connect();
