@@ -2,8 +2,8 @@ name: WhatsApp Bot
 
 on:
   schedule:
-    - cron: '*/15 * * * *' # toda segunda às 7h (Brasília = UTC-3, então 10h UTC)
-  workflow_dispatch:        # permite rodar manualmente pra testar
+    - cron: '*/15 * * * *'
+  workflow_dispatch:        
 
 jobs:
   send-message:
@@ -21,19 +21,17 @@ jobs:
 
       - name: Restaurar sessão
         run: |
-          mkdir -p auth_info
-          echo '${{ secrets.WHATSAPP_AUTH }}' | node -e "
-            const fs = require('fs');
-            let data = '';
-            process.stdin.on('data', d => data += d);
-            process.stdin.on('end', () => {
-              const parsed = JSON.parse(data);
-              for (const [filename, content] of Object.entries(parsed)) {
-                fs.writeFileSync('auth_info/' + filename, JSON.stringify(content));
-              }
-              console.log('✅ Sessão restaurada!');
-            });
-          "
+            mkdir -p auth_info
+    node -e "
+      const fs = require('fs');
+      const zlib = require('zlib');
+      const compressed = Buffer.from('${{ secrets.WHATSAPP_AUTH }}', 'base64');
+      const data = JSON.parse(zlib.gunzipSync(compressed).toString());
+      for (const [filename, content] of Object.entries(data)) {
+          fs.writeFileSync('auth_info/' + filename, JSON.stringify(content));
+        }
+        console.log('✅ Sessão restaurada!');
+        "
 
       - name: Enviar mensagem
         run: node send.js
