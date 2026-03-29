@@ -32,7 +32,9 @@ jobs:
             }
             console.log('✅ Sessão restaurada!');
           "
-
+      - name: Testar conectividade
+        run: curl -I https://web.whatsapp.com
+      
       - name: Enviar mensagem
         run: node send.js
         timeout-minutes: 2
