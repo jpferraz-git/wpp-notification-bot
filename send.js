@@ -14,19 +14,18 @@ async function connect() {
   sock.ev.on('creds.update', saveCreds);
 
   sock.ev.on('connection.update', async ({ connection, lastDisconnect }) => {
-
     if (connection === 'open') {
-        const groups = await sock.groupFetchAllParticipating();
-        const group = Object.values(groups).find(g => g.subject === 'Bonda');
+      const groups = await sock.groupFetchAllParticipating();
+      const group = Object.values(groups).find(g => g.subject === 'Bonda');
 
-        if(!group) {
-            console.error('Group "Bonda" not found!');
-            process.exit(1);
-        }
+      if (!group) {
+        console.error('Group "Bonda" not found!');
+        process.exit(1);
+      }
 
-        await sock.sendMessage(group.id, { text: 'QUEBRA BOLAS' });
-        console.log('Message sent!');
-        process.exit(0);
+      await sock.sendMessage(group.id, { text: 'QUEBRA BOLAS' });
+      console.log('Message sent!');
+      process.exit(0);
     }
 
     if (connection === 'close') {
