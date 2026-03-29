@@ -1,5 +1,6 @@
 node_modules
 package-lock.json
-.wwebjs_auth
-.wwebjs_cache
+auth_info
+session.json
+export-sesson.cjs
 .env
